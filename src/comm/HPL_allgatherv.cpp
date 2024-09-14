@@ -1,3 +1,6 @@
+#ifdef CUDA_ENV
+#include "cuda_env.h"
+#endif
 /* ---------------------------------------------------------------------
  * -- High Performance Computing Linpack Benchmark (HPL)
  *    HPL - 2.2 - February 24, 2016

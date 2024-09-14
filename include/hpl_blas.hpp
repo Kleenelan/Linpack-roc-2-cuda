@@ -22,9 +22,19 @@
  */
 
 #include "hpl_misc.hpp"
+
+#ifdef CUDA_ENV
+#include "cuda_env.h"
+#include <cublas_v2.h>
+
+#else
 #include <rocblas/rocblas.h>
 #include <roctracer.h>
 #include <roctx.h>
+#endif
+
+
+
 #include <iostream>
 
 extern rocblas_handle handle;

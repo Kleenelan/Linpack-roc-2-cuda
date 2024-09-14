@@ -1,0 +1,54 @@
+
+CPU_OBJ:=
+DEV_OBJ:=
+
+
+
+EXE := hpl_cuda
+
+all: $(EXE)
+
+
+hpl_cuda:= $(CPU_OBJ) $(DEV_OBJ)
+	g++ $^ -o $@ $(INC_EXE) $(LD_FLAGS_EXE)
+
+INC_EXE :=
+LD_FLAGS_EXE :=
+
+
+
+
+
+
+#g++ -DCUDA_ENV  -c  panel/HPL_pdpanel_free.cpp -I ../include/  -I/usr/local/cuda/include -I ../tpl/openmpi/include/ -L ../tpl/openmpi/lib/  -L /usr/local/cuda/lib64 -lcudart -lmpi
+
+
+%.cpp.o: %.cpp
+	g++ -DCUDA_ENV  -c  panel/HPL_pdpanel_free.cpp $(INC_CPU) $(LD_FLAGS_CPU)
+
+
+INC_CPU 	:= -I ../include/  -I/usr/local/cuda/include -I ../tpl/openmpi/include/ 
+LD_FLAGS_CPU 	:= -L ../tpl/openmpi/lib/  -L /usr/local/cuda/lib64 -lcudart -lmpi
+
+
+
+
+
+INC_DEV :=
+LD_FLAGS_DEV :=
+
+%.cu.o: %.cu
+	nvcc -c $< -o $@ $(INC_DEV) $(LD_FLAGS_DEV)
+
+
+
+.PHONY: clean
+clean:
+	-rm -rf $(CPU_OBJ) $(DEV_OBJ) $(EXE) 
+
+
+.PHONY: echo
+echo:
+	@echo "hello world!"
+
+
