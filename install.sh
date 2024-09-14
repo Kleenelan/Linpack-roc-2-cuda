@@ -377,17 +377,12 @@ pushd .
   shopt -u nocasematch
 
   # Build library with AMD toolchain because of existence of device kernels
-  mkdir -p ${build_dir} && cd ${build_dir}
-  ${cmake_executable} ${cmake_common_options} ..
-  check_exit_code 2
+  #II:: mkdir -p ${build_dir} && cd ${build_dir}
+  #II:: ${cmake_executable} ${cmake_common_options} ..
+  #II:: check_exit_code 2
 
-  if [[ -e build.ninja ]]; then
-    command -v ninja > /dev/null 2>&1
-    check_exit_code 2 "Ninja command was not found, but is required by CMake config"
-    ninja install
-  else
-    make -j$(nproc) install
-  fi
+  #make -j$(nproc) install
+  make -j$(nproc)
   check_exit_code 2
 
 popd
