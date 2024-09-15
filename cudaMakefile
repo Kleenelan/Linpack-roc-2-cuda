@@ -1,54 +1,53 @@
 
-CPU_OBJ:=
-DEV_OBJ:=
 
+CU_CXX  := /usr/local/cuda/bin/nvcc
+CPP_CXX := g++
+EXE_CXX := g++
 
+include make.cuda.src
+include make.cpp.src
+
+CPP_OBJ := $(CPP_SRC:.cpp=.cpp.o)
+CU_OBJ := $(CU_SRC:.cu=.cu.o)
 
 EXE := hpl_cuda
 
 all: $(EXE)
 
+INC_EXE 	:= -I ./include/  -I/usr/local/cuda/include -I ./tpl/openmpi/include/
+LD_FLAGS_EXE 	:= -L ./tpl/openmpi/lib/ -L ./tpl/blis/lib -L /usr/local/cuda/lib64 -lcudart -lcublas -lmpi -lblis
 
-hpl_cuda:= $(CPU_OBJ) $(DEV_OBJ)
-	g++ $^ -o $@ $(INC_EXE) $(LD_FLAGS_EXE)
-
-INC_EXE :=
-LD_FLAGS_EXE :=
-
-
-
-
+$(EXE) : $(CPP_OBJ) $(CU_OBJ)
+	$(EXE_CXX) -fopenmp -DCUDA_ENV $^ -o $@ $(INC_EXE) $(LD_FLAGS_EXE)
 
 
 #g++ -DCUDA_ENV  -c  panel/HPL_pdpanel_free.cpp -I ../include/  -I/usr/local/cuda/include -I ../tpl/openmpi/include/ -L ../tpl/openmpi/lib/  -L /usr/local/cuda/lib64 -lcudart -lmpi
 
+INC_CPP 	:= -I ./include/  -I/usr/local/cuda/include -I ./tpl/openmpi/include/
+#LD_FLAGS_CPP 	:= -L ../tpl/openmpi/lib/ -L ../tpl/blis/lib -L /usr/local/cuda/lib64 -lcudart -lcublas -lmpi -lblis
 
 %.cpp.o: %.cpp
-	g++ -DCUDA_ENV  -c  panel/HPL_pdpanel_free.cpp $(INC_CPU) $(LD_FLAGS_CPU)
+	g++ -DCUDA_ENV -c $< -o $@ $(INC_CPP)
 
 
-INC_CPU 	:= -I ../include/  -I/usr/local/cuda/include -I ../tpl/openmpi/include/ 
-LD_FLAGS_CPU 	:= -L ../tpl/openmpi/lib/  -L /usr/local/cuda/lib64 -lcudart -lmpi
-
-
-
-
-
-INC_DEV :=
-LD_FLAGS_DEV :=
+INC_CU      := -I /usr/local/cuda/include -I tpl/openmpi/include/ -I ./include
+#LD_FLAGS_CU := -L /usr/local/cuda/lib64 -lcudart
 
 %.cu.o: %.cu
-	nvcc -c $< -o $@ $(INC_DEV) $(LD_FLAGS_DEV)
+	nvcc -DCUDA_ENV -c $< -o $@ $(INC_CU)
 
+# $(LD_FLAGS_CU)
 
 
 .PHONY: clean
 clean:
-	-rm -rf $(CPU_OBJ) $(DEV_OBJ) $(EXE) 
+	-rm -rf $(CPP_OBJ) $(CU_OBJ) $(EXE)
 
 
 .PHONY: echo
 echo:
 	@echo "hello world!"
+	@echo "CPP_SRC		is	" $(CPP_SRC)
+	@echo "CU_SRC		is	" $(CU_SRC)
 
 

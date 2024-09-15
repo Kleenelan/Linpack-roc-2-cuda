@@ -1,0 +1,17 @@
+
+
+HIP_SRC := \
+src/auxil/HPL_dlatcpy_device.hip    	\
+src/matgen/HPL_pdrandmat_device.hip 	\
+src/pauxil/HPL_dlaswp00N_device.hip 	\
+src/pauxil/HPL_dlaswp01T_device.hip 	\
+src/pauxil/HPL_dlaswp02T_device.hip 	\
+src/pauxil/HPL_dlaswp03T_device.hip 	\
+src/pauxil/HPL_dlaswp04T_device.hip 	\
+src/pauxil/HPL_dlaswp10N_device.hip 	\
+src/pauxil/HPL_pdlange_device.hip	\
+src/pgesv/HPL_pdtrsv_device.hip
+
+
+
+

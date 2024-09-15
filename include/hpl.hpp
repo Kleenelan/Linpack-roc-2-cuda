@@ -44,9 +44,10 @@ but will potentailly lead to residual values which vary from run-to-run
 
 
 #ifdef CUDA_ENV
-
-#include "cuda_env.h"
 #include "cuda_runtime.h"
+#include "cublas_v2.h"
+#include "cuda_env.h"
+
 
 #else////////////////////////////////////////////////////////////////////////////////////
 
