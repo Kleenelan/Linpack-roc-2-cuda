@@ -16,7 +16,7 @@ all: $(EXE)-$(VERSION)
 
 INC_EXE 	:= -I ./include/  -I/usr/local/cuda/include -I ./tpl/openmpi/include/
 LD_FLAGS_EXE 	:= -L ./tpl/openmpi/lib/ -L ./tpl/blis/lib -L /usr/local/cuda/lib64 -lcudart -lcublas -lmpi -lblis
-LD_FLAGS_EXE	+= -Wl,-rpath,./tpl/openmpi/lib:./tpl/blis/lib:
+LD_FLAGS_EXE	+= -Wl,-rpath,$(shell pwd)/tpl/openmpi/lib:$(shell pwd)/tpl/blis/lib:
 
 $(EXE)-$(VERSION) : $(CPP_OBJ) $(CU_OBJ)
 	$(EXE_CXX)  -fopenmp -DCUDA_ENV $^ -o $@ $(INC_EXE) $(LD_FLAGS_EXE)
