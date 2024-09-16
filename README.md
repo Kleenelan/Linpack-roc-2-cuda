@@ -1,3 +1,17 @@
+Build on cuda for the first time:
+
+```
+install.sh --prefix=/path-to-install
+```
+
+After the first time, to build the update:
+```
+make -j
+make install PREFIX=/path-to-install
+```
+default PREFIX is ../local/
+
+
 # rocHPL
 rocHPL is a benchmark based on the [HPL][] benchmark application, implemented on top of AMD's Radeon Open Compute [ROCm][] Platform, runtime, and toolchains. rocHPL is created using the [HIP][] programming language and optimized for AMD's latest discrete GPUs.
 
