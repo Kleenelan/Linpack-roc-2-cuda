@@ -14,8 +14,8 @@ function display_help()
   echo "    [-h|--help] prints this help message"
   echo "    [-g|--debug] Set build type to Debug (otherwise build Release)"
   echo "    [--prefix] Path to rocHPL install location (Default: build/rocHPL)"
-  echo "    [--with-rocm=<dir>] Path to ROCm install (Default: /opt/rocm)"
-  echo "    [--with-rocblas=<dir>] Path to rocBLAS library (Default: /opt/rocm/rocblas)"
+  echo "    [--with-cuda=<dir>] Path to CUDA install (Default: /usr/local/cuda)"
+  echo "    [--with-cublas=<dir>] Path to cuBLAS library (Default: /usr/local/cuda)"
   echo "    [--with-cpublas=<dir>] Path to external CPU BLAS library (Default: clone+build BLIS)"
   echo "    [--with-mpi=<dir>] Path to external MPI install (Default: clone+build OpenMPI)"
   echo "    [--verbose-print] Verbose output during HPL setup (Default: true)"
@@ -52,13 +52,6 @@ exit_with_error( )
     local library_dependencies_centos=( "git" "make" "cmake3" "gcc-c++" "rpm-build" "epel-release" "numactl-libs" "autoconf" "libtool" "automake" "m4" "flex" "libgomp")
     local library_dependencies_fedora=( "git" "make" "cmake" "gcc-c++" "libcxx-devel" "rpm-build" "numactl-libs"  "autoconf" "libtool" "automake" "m4" "flex" "libgomp")
     local library_dependencies_sles=(   "git" "make" "cmake" "gcc-c++" "libcxxtools9" "rpm-build" "libnuma-devel" "autoconf" "libtool" "automake" "m4" "flex" "libgomp1")
-
-    if [[ "${with_rocm}" == /opt/rocm ]]; then
-      library_dependencies_ubuntu+=("rocblas" "rocblas-dev")
-      library_dependencies_centos+=("rocblas" "rocblas-devel")
-      library_dependencies_fedora+=("rocblas" "rocblas-dev")
-      library_dependencies_sles+=("rocblas" "rocblas-devel")
-    fi
 
     printf "Installation failed. Some required packages may be missing.\n"
     printf "The following package manager install command may be needed:\n"
@@ -149,7 +142,7 @@ install_openmpi( )
     ./autogen.sh; ./autogen.sh #why do we have to run this twice?
     check_exit_code 2
     mkdir build; cd build
-    ../contrib/configure-opt --prefix=${PWD}/../ --with-rocm=${with_rocm} --without-knem --without-cuda --without-java
+    ../contrib/configure-opt --prefix=${PWD}/../ --with-cuda=${with_cuda} --without-knem --without-rocm --without-java
     check_exit_code 2
     make -j$(nproc)
     check_exit_code 2
@@ -160,11 +153,11 @@ install_openmpi( )
         [ ! -f "${ucx_lib_folder}/libucs.so" ] || [ ! -f "${ucx_lib_folder}/libuct.so" ]) && \
        ([ ! -f "${ucx_lib64_folder}/libucm.so" ] || [ ! -f "${ucx_lib64_folder}/libucp.so" ]  || \
         [ ! -f "${ucx_lib64_folder}/libucs.so" ] || [ ! -f "${ucx_lib64_folder}/libuct.so" ]); then
-    cd tpl/ucx; 
+    cd tpl/ucx;
     ./autogen.sh; ./autogen.sh
     check_exit_code 2
     mkdir build; cd build
-    ../contrib/configure-opt --prefix=${PWD}/../ --with-rocm=${with_rocm} --without-knem --without-cuda --without-java
+    ../contrib/configure-opt --prefix=${PWD}/../ --with-cuda=${with_cuda} --without-knem --without-rocm --without-java
     check_exit_code 2
     make -j$(nproc)
     check_exit_code 2
@@ -246,9 +239,9 @@ supported_distro
 # #################################################
 install_prefix=rocHPL
 build_release=true
-with_rocm=/opt/rocm
+with_cuda=/usr/local/cuda
 with_mpi=tpl/openmpi
-with_rocblas=/opt/rocm/rocblas
+with_cublas=/usr/local/cuda
 with_cpublas=tpl/blis/lib
 verbose_print=true
 progress_report=true
@@ -261,7 +254,7 @@ detailed_timing=true
 # check if we have a modern version of getopt that can handle whitespace and long parameters
 getopt -T
 if [[ $? -eq 4 ]]; then
-  GETOPT_PARSE=$(getopt --name "${0}" --longoptions help,debug,prefix:,with-rocm:,with-mpi:,with-rocblas:,with-cpublas:,verbose-print:,progress-report:,detailed-timing: --options hg -- "$@")
+  GETOPT_PARSE=$(getopt --name "${0}" --longoptions help,debug,prefix:,with-cuda:,with-mpi:,with-cublas:,with-cpublas:,verbose-print:,progress-report:,detailed-timing: --options hg -- "$@")
 else
   echo "Need a new version of getopt"
   exit_with_error 1
@@ -286,14 +279,14 @@ while true; do
     --prefix)
         install_prefix=${2}
         shift 2 ;;
-    --with-rocm)
-        with_rocm=${2}
+    --with-cuda)
+        with_cuda=${2}
         shift 2 ;;
     --with-mpi)
         with_mpi=${2}
         shift 2 ;;
-    --with-rocblas)
-        with_rocblas=${2}
+    --with-cublas)
+        with_cublas=${2}
         shift 2 ;;
     --with-cpublas)
         with_cpublas=${2}
@@ -326,10 +319,10 @@ rm -rf ${build_dir}
 # Default cmake executable is called cmake
 cmake_executable=cmake
 
-# We append customary rocm path; if user provides custom rocm path in ${path}, our
+# We append customary cuda path; if user provides custom cuda path in ${path}, our
 # hard-coded path has lesser priority
-export ROCM_PATH=${with_rocm}
-export PATH=${PATH}:${ROCM_PATH}/bin
+export CUDA_PATH=${with_cuda}
+export PATH=${PATH}:${CUDA_PATH}/bin
 
 pushd .
   # #################################################
@@ -351,11 +344,13 @@ pushd .
 
   fi
 
+
+
   # #################################################
   # configure & build
   # #################################################
   cmake_common_options="-DCMAKE_INSTALL_PREFIX=${install_prefix} -DHPL_BLAS_DIR=${with_cpublas}
-                        -DHPL_MPI_DIR=${with_mpi} -DROCM_PATH=${with_rocm} -DROCBLAS_PATH=${with_rocblas}"
+                        -DHPL_MPI_DIR=${with_mpi} -DROCM_PATH=${with_cuda} -DROCBLAS_PATH=${with_cublas}"
 
   # build type
   if [[ "${build_release}" == true ]]; then
@@ -377,12 +372,14 @@ pushd .
   shopt -u nocasematch
 
   # Build library with AMD toolchain because of existence of device kernels
-  #II:: mkdir -p ${build_dir} && cd ${build_dir}
-  #II:: ${cmake_executable} ${cmake_common_options} ..
-  #II:: check_exit_code 2
-
+  mkdir -p ${build_dir} && cd ${build_dir}
+  ${cmake_executable} ${cmake_common_options} ../cmake_cuda/
+  check_exit_code 2
+  cd ../
   #make -j$(nproc) install
-  make -j$(nproc)
+
+  make -j$(nproc) 
+  make install PREFIX=${install_prefix}
   check_exit_code 2
 
 popd

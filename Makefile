@@ -1,97 +1,78 @@
 
-CPU_CXX := g++
-DEV_CXX := /opt/rocm/bin/hipcc
+VERSION := 6.0.0
+CU_CXX  := /usr/local/cuda/bin/nvcc
+CPP_CXX := g++
+EXE_CXX := g++
+
+include make.cuda.src
+include make.cpp.src
+
+CPP_OBJ := $(CPP_SRC:.cpp=.cpp.o)
+CU_OBJ := $(CU_SRC:.cu=.cu.o)
+
+EXE := ixhpl
+
+all: $(EXE)-$(VERSION)
+
+INC_EXE 	:= -I ./include/  -I/usr/local/cuda/include -I ./tpl/openmpi/include/
+LD_FLAGS_EXE 	:= -L ./tpl/openmpi/lib/ -L ./tpl/blis/lib -L /usr/local/cuda/lib64 -lcudart -lcublas -lmpi -lblis
+LD_FLAGS_EXE	+= -Wl,-rpath,./tpl/openmpi/lib:./tpl/blis/lib:
+
+$(EXE)-$(VERSION) : $(CPP_OBJ) $(CU_OBJ)
+	$(EXE_CXX)  -fopenmp -DCUDA_ENV $^ -o $@ $(INC_EXE) $(LD_FLAGS_EXE)
 
 
-TOP_DIR := $(shell pwd)
+#g++ -DCUDA_ENV  -c  panel/HPL_pdpanel_free.cpp -I ../include/  -I/usr/local/cuda/include -I ../tpl/openmpi/include/ -L ../tpl/openmpi/lib/  -L /usr/local/cuda/lib64 -lcudart -lmpi
 
-include make.src.hpl
-
-LD_CPU_FLAGS :=
-LD_DEV_FLAGS :=
-
-CPU_OBJ := $(CPU_SRC:.cpp=.cpp.o)
-DEV_OBJ := $(DEV_SRC:.hip=.hip.o)
-
-
-CXX_FLAGS_EXE := -O3 -DNDEBUG -fopenmp -Wl,-rpath \
--Wl,$(TOP_DIR)/tpl/openmpi/build/../lib \
--Wl,--enable-new-dtags \
- -Wl,-rpath,/opt/rocm-6.0.2/lib:/opt/rocm/lib:$(TOP_DIR)/tpl/openmpi/lib:$(TOP_DIR)/tpl/blis/lib: \
- /opt/rocm-6.0.2/lib/librocblas.so.4.0.60002 \
- /opt/rocm/lib/libroctracer64.so \
- /opt/rocm/lib/libroctx64.so \
- $(TOP_DIR)/tpl/openmpi/lib/libmpi.so \
- /usr/lib/gcc/x86_64-linux-gnu/12/libgomp.so \
- /usr/lib/x86_64-linux-gnu/libpthread.a \
- $(TOP_DIR)/tpl/blis/lib/libblis.so \
- /opt/rocm/lib/libamdhip64.so.6.0.60002
-
-EXE := rochpl_from_make
-
-all: $(EXE)
-
-$(EXE): $(CPU_OBJ) $(DEV_OBJ)
-	g++ $^ -o $@ $(CXX_FLAGS_EXE) 	
-
-
-
-
-#############################################
-
-CPU_CXX_FLAGS := -O3 -DNDEBUG -std=c++11 -O3 -march=native -fopenmp
-CPU_CXX_FLAGS += -DHPL_DETAILED_TIMING -DHPL_PROGRESS_REPORT -DHPL_VERBOSE_PRINT -DUSE_PROF_API=1 -D__HIP_PLATFORM_AMD__=1
-
-
-
-INC_CPU := 	-I$(TOP_DIR)/include \
-			-I$(TOP_DIR)/build/include \
-			-isystem $(TOP_DIR)/tpl/openmpi/include
-
-INC_ROCM :=	-I/opt/rocm/include/roctracer \
-			-isystem /opt/rocm/include
-
-INC_CPU += $(INC_ROCM)
+INC_CPP 	:= -I ./include/  -I/usr/local/cuda/include -I ./tpl/openmpi/include/
+#LD_FLAGS_CPP 	:= -L ../tpl/openmpi/lib/ -L ../tpl/blis/lib -L /usr/local/cuda/lib64 -lcudart -lcublas -lmpi -lblis
+CPP_CXX_FLAGS := -O3 -DNDEBUG -std=c++11 -march=native -fopenmp
+CPP_CXX_FLAGS += -DHPL_DETAILED_TIMING -DHPL_PROGRESS_REPORT -DHPL_VERBOSE_PRINT -DUSE_PROF_API=1
+# -D__HIP_PLATFORM_AMD__=1
 
 %.cpp.o: %.cpp
-	$(CPU_CXX) -c $^ -o $@ $(INC_CPU) $(CPU_CXX_FLAGS)
+	g++ -DCUDA_ENV $(CPP_CXX_FLAGS) $(INC_CPP) -c $< -o $@
 
 
 
 
-#############################################
-
-DEV_CXX_FLAGS := -Wno-unused-command-line-argument -fPIE -fopenmp -O3 -march=native -ffp-contract=fast -ffast-math -funsafe-math-optimizations
-DEV_CXX_FLAGS += --offload-arch=gfx900 --offload-arch=gfx906 --offload-arch=gfx908 --offload-arch=gfx90a --offload-arch=gfx940 --offload-arch=gfx941 --offload-arch=gfx942
-DEV_CXX_FLAGS += -DHPL_VERBOSE_PRINT -DHPL_DETAILED_TIMING -DHPL_PROGRESS_REPORT -D__HIP_PLATFORM_AMD__=1 -DUSE_PROF_API=1
-
-INC_HPL := \
--I$(TOP_DIR)/include \
--I$(TOP_DIR)/build/include \
--I$(TOP_DIR)/tpl/openmpi/include
-
-
-INC_DEV := \
--I/opt/rocm/include \
--I/opt/rocm/include/roctracer
-
-INC_DEV += $(INC_HPL)
-
-
-%.hip.o: %.hip
-	$(DEV_CXX) -c $^ $(INC_DEV) $(DEV_CXX_FLAGS) -o $@
 
 
 
+INC_CU      := -I /usr/local/cuda/include -I tpl/openmpi/include/ -I ./include
+#LD_FLAGS_CU := -L /usr/local/cuda/lib64 -lcudart
+CU_CXX_FLAGS := -O3
+#CU_CXX_FLAGS +=  -DHPL_VERBOSE_PRINT -DHPL_DETAILED_TIMING -DHPL_PROGRESS_REPORT -DUSE_PROF_API=1
+#nvcc fatal   : Unknown option '-Wno-unused-command-line-argument'
+#-D__HIP_PLATFORM_AMD__=1
+#Unknown option '-fPIE'
+%.cu.o: %.cu
+	nvcc -DCUDA_ENV $(CU_CXX_FLAGS) -c $< -o $@ $(INC_CU)
+
+# $(LD_FLAGS_CU)
+
+PREFIX ?= ../local
+
+
+.PHONY: install
+install:
+	mkdir -p $(PREFIX)/bin
+	cp scripts/HPL.dat $(PREFIX)
+	cp ./build/run_rochpl $(PREFIX)
+	cp ./build/mpirun_rochpl $(PREFIX)
+	cp $(EXE)-$(VERSION) $(PREFIX)/bin/
+	cd $(PREFIX)/bin && rm -rf $(EXE) && ln -s $(EXE)-$(VERSION) $(EXE)
 
 
 .PHONY: clean
 clean:
-	-rm -rf $(CPU_OBJ) $(DEV_OBJ) $(EXE) 
+	-rm -rf $(CPP_OBJ) $(CU_OBJ) $(EXE)-$(VERSION) 
 
 
 .PHONY: echo
 echo:
-	@echo "CPU_OBJ is"	$(CPU_OBJ)
+	@echo "hello world!"
+	@echo "CPP_SRC		is	" $(CPP_SRC)
+	@echo "CU_SRC		is	" $(CU_SRC)
 
-#	@echo "CPU_SRC is "	$(CPU_SRC)
+
