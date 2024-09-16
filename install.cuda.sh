@@ -344,17 +344,42 @@ pushd .
 
   fi
 
+
+
   # #################################################
   # configure & build
   # #################################################
+  cmake_common_options="-DCMAKE_INSTALL_PREFIX=${install_prefix} -DHPL_BLAS_DIR=${with_cpublas}
+                        -DHPL_MPI_DIR=${with_mpi} -DROCM_PATH=${with_cuda} -DROCBLAS_PATH=${with_cublas}"
+
+  # build type
+  if [[ "${build_release}" == true ]]; then
+    cmake_common_options="${cmake_common_options} -DCMAKE_BUILD_TYPE=Release"
+  else
+    cmake_common_options="${cmake_common_options} -DCMAKE_BUILD_TYPE=Debug"
+  fi
+
+  shopt -s nocasematch
+  if [[ "${verbose_print}" == on || "${verbose_print}" == true || "${verbose_print}" == 1 || "${verbose_print}" == enabled ]]; then
+    cmake_common_options="${cmake_common_options} -DHPL_VERBOSE_PRINT=ON"
+  fi
+  if [[ "${progress_report}" == on || "${progress_report}" == true || "${progress_report}" == 1 || "${progress_report}" == enabled ]]; then
+    cmake_common_options="${cmake_common_options} -DHPL_PROGRESS_REPORT=ON"
+  fi
+  if [[ "${detailed_timing}" == on || "${detailed_timing}" == true || "${detailed_timing}" == 1 || "${detailed_timing}" == enabled ]]; then
+    cmake_common_options="${cmake_common_options} -DHPL_DETAILED_TIMING=ON"
+  fi
+  shopt -u nocasematch
 
   # Build library with AMD toolchain because of existence of device kernels
-  #II:: mkdir -p ${build_dir} && cd ${build_dir}
-  #II:: ${cmake_executable} ${cmake_common_options} ..
-  #II:: check_exit_code 2
-
+  mkdir -p ${build_dir} && cd ${build_dir}
+  ${cmake_executable} ${cmake_common_options} ../cmake_cuda/
+  check_exit_code 2
+  cd ../
   #make -j$(nproc) install
+
   make -j$(nproc) -f cudaMakefile
+  make -f cudaMakefile install PREFIX=${install_prefix}
   check_exit_code 2
 
 popd
