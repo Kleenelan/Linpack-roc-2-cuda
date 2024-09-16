@@ -41,6 +41,16 @@ but will potentailly lead to residual values which vary from run-to-run
  */
 #include <omp.h>
 
+
+
+#ifdef CUDA_ENV
+#include "cuda_runtime.h"
+#include "cublas_v2.h"
+#include "cuda_env.h"
+
+
+#else////////////////////////////////////////////////////////////////////////////////////
+
 // NC: hipcc in ROCm 3.7 complains if __HIP_PLATFORM_HCC__ is defined in the
 // compile line
 #ifdef __HIPCC__
@@ -49,6 +59,8 @@ but will potentailly lead to residual values which vary from run-to-run
 #endif
 #endif
 #include "hip/hip_runtime_api.h"
+#endif
+
 
 #include "hpl_version.hpp"
 #include "hpl_misc.hpp"

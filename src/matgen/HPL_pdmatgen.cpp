@@ -1,3 +1,6 @@
+#ifdef CUDA_ENV
+#include "cuda_env.h"
+#endif
 /* ---------------------------------------------------------------------
  * -- High Performance Computing Linpack Benchmark (HPL)
  *    Noel Chalmers
@@ -9,7 +12,7 @@
  */
 
 #include "hpl.hpp"
-#include <hip/hip_runtime_api.h>
+//#include <hip/hip_runtime_api.h>
 #include <cassert>
 #include <unistd.h>
 
@@ -121,8 +124,10 @@ int HPL_pdmatgen(HPL_T_test* TEST,
   CHECK_ROCBLAS_ERROR(
       rocblas_set_pointer_mode(handle, rocblas_pointer_mode_host));
   CHECK_ROCBLAS_ERROR(rocblas_set_stream(handle, computeStream));
-
+#ifndef CUDA_ENV
   rocblas_initialize();
+#endif
+
 
 #ifdef HPL_ROCBLAS_ALLOW_ATOMICS
   CHECK_ROCBLAS_ERROR(

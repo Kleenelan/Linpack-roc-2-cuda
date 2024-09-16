@@ -15,7 +15,7 @@
  */
 
 #include "hpl.hpp"
-#include <hip/hip_runtime.h>
+//#include <hip/hip_runtime.h>
 
 #define BLOCK_SIZE 512
 __global__ void setZero(const int N, double* __restrict__ X) {

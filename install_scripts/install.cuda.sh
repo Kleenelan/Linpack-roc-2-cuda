@@ -254,7 +254,7 @@ detailed_timing=true
 # check if we have a modern version of getopt that can handle whitespace and long parameters
 getopt -T
 if [[ $? -eq 4 ]]; then
-  GETOPT_PARSE=$(getopt --name "${0}" --longoptions help,debug,prefix:,with-cuda:,with-mpi:,with-cublas:,with-cpublas:,verbose-print:,progress-report:,detailed-timing: --options hg -- "$@")
+  GETOPT_PARSE=$(getopt --name "${0}" --longoptions help,debug,prefix:,with-rocm:,with-mpi:,with-rocblas:,with-cpublas:,verbose-print:,progress-report:,detailed-timing: --options hg -- "$@")
 else
   echo "Need a new version of getopt"
   exit_with_error 1
@@ -319,7 +319,7 @@ rm -rf ${build_dir}
 # Default cmake executable is called cmake
 cmake_executable=cmake
 
-# We append customary cuda path; if user provides custom cuda path in ${path}, our
+# We append customary rocm path; if user provides custom rocm path in ${path}, our
 # hard-coded path has lesser priority
 export CUDA_PATH=${with_cuda}
 export PATH=${PATH}:${CUDA_PATH}/bin
@@ -344,42 +344,17 @@ pushd .
 
   fi
 
-
-
   # #################################################
   # configure & build
   # #################################################
-  cmake_common_options="-DCMAKE_INSTALL_PREFIX=${install_prefix} -DHPL_BLAS_DIR=${with_cpublas}
-                        -DHPL_MPI_DIR=${with_mpi} -DROCM_PATH=${with_cuda} -DROCBLAS_PATH=${with_cublas}"
-
-  # build type
-  if [[ "${build_release}" == true ]]; then
-    cmake_common_options="${cmake_common_options} -DCMAKE_BUILD_TYPE=Release"
-  else
-    cmake_common_options="${cmake_common_options} -DCMAKE_BUILD_TYPE=Debug"
-  fi
-
-  shopt -s nocasematch
-  if [[ "${verbose_print}" == on || "${verbose_print}" == true || "${verbose_print}" == 1 || "${verbose_print}" == enabled ]]; then
-    cmake_common_options="${cmake_common_options} -DHPL_VERBOSE_PRINT=ON"
-  fi
-  if [[ "${progress_report}" == on || "${progress_report}" == true || "${progress_report}" == 1 || "${progress_report}" == enabled ]]; then
-    cmake_common_options="${cmake_common_options} -DHPL_PROGRESS_REPORT=ON"
-  fi
-  if [[ "${detailed_timing}" == on || "${detailed_timing}" == true || "${detailed_timing}" == 1 || "${detailed_timing}" == enabled ]]; then
-    cmake_common_options="${cmake_common_options} -DHPL_DETAILED_TIMING=ON"
-  fi
-  shopt -u nocasematch
 
   # Build library with AMD toolchain because of existence of device kernels
-  mkdir -p ${build_dir} && cd ${build_dir}
-  ${cmake_executable} ${cmake_common_options} ../cmake_cuda/
-  check_exit_code 2
-  cd ../
-  #make -j$(nproc) install
+  #II:: mkdir -p ${build_dir} && cd ${build_dir}
+  #II:: ${cmake_executable} ${cmake_common_options} ..
+  #II:: check_exit_code 2
 
-  make -j$(nproc) 
-  make install PREFIX=${install_prefix}
+  #make -j$(nproc) install
+  make -j$(nproc)
   check_exit_code 2
 
 popd
