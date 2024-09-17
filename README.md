@@ -11,6 +11,12 @@ make install PREFIX=/path-to-install
 ```
 default PREFIX is ../local/
 
+Running test:
+```
+cd /path-to-install
+./mpirun_rochpl
+```
+
 
 # rocHPL
 rocHPL is a benchmark based on the [HPL][] benchmark application, implemented on top of AMD's Radeon Open Compute [ROCm][] Platform, runtime, and toolchains. rocHPL is created using the [HIP][] programming language and optimized for AMD's latest discrete GPUs.
@@ -117,11 +123,11 @@ When launching to multiple compute nodes, it can be useful to specify the local 
 ```
 srun -N 2 -n 16 run_rochpl -P 4 -Q 4 -p 2 -q 4 -N 128000 --NB 512
 ```
-or 
+or
 ```
 srun -N 2 -n 16 run_rochpl -P 4 -Q 4 -p 4 -q 2 -N 128000 --NB 512
 ```
-This helps to control where/how much inter-node communication is occuring. 
+This helps to control where/how much inter-node communication is occuring.
 
 ## Performance evaluation
 rocHPL is typically weak scaled so that the global matrix fills all available VRAM on all GPUs. The matrix size N is usually selected to be a multiple of the blocksize NB. Some sample runs on 32GB MI100 GPUs include:
