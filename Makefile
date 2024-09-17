@@ -58,15 +58,15 @@ PREFIX ?= ../local
 install:
 	mkdir -p $(PREFIX)/bin
 	cp scripts/HPL.dat $(PREFIX)
-	cp ./build/run_rochpl $(PREFIX)
-	cp ./build/mpirun_rochpl $(PREFIX)
+	mv ./build/run_rochpl $(PREFIX)
+	mv ./build/mpirun_rochpl $(PREFIX)
 	cp $(EXE)-$(VERSION) $(PREFIX)/bin/
 	cd $(PREFIX)/bin && rm -rf $(EXE) && ln -s $(EXE)-$(VERSION) $(EXE)
 
 
 .PHONY: clean
 clean:
-	-rm -rf $(CPP_OBJ) $(CU_OBJ) $(EXE)-$(VERSION) 
+	-rm -rf $(CPP_OBJ) $(CU_OBJ) $(EXE)-$(VERSION)
 
 
 .PHONY: echo
