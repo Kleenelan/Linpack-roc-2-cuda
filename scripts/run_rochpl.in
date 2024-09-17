@@ -82,16 +82,16 @@ supported_distro
 # global variables
 # #################################################
 # Grab options from CMake config
-rochpl_bin=@CMAKE_INSTALL_PREFIX@/bin/rochpl
-rocm_dir=@ROCM_PATH@
-rocblas_dir=@ROCBLAS_LIB_PATH@
+rochpl_bin=@CMAKE_INSTALL_PREFIX@/bin/ixhpl
+cuda_dir=@CUDA_PATH@
+cublas_dir=@CUBLAS_LIB_PATH@
 blas_dir=@HPL_BLAS_DIR@
 
 P=1
 Q=1
 p=-1
 q=-1
-N=45312
+N=35312
 NB=384
 frac=0.6
 
@@ -99,7 +99,7 @@ filename=HPL.dat
 inputfile=false
 cmdrun=false
 
-export LD_LIBRARY_PATH=${rocblas_dir}:${blas_dir}:${rocm_dir}/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=${cublas_dir}:${blas_dir}:${cuda_dir}/lib:$LD_LIBRARY_PATH
 
 oversubscribe=true
 
