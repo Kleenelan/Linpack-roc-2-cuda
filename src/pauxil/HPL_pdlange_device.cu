@@ -193,11 +193,17 @@ double HPL_pdlange(const HPL_T_grid* GRID,
     if((nq > 0) && (mp > 0)) {
       if(nq == 1) { // column vector
         int id;
+#ifdef PRPRA
+printf("Of %s, line: %d, calling  cublasIdamax(int n=%d, const double *x, int incx=%d, int *result)\n", __FILE__, __LINE__, mp, 1);
+#endif
         CHECK_ROCBLAS_ERROR(rocblas_idamax(handle, mp, A, 1, &id));
         CHECK_HIP_ERROR(hipMemcpy(
             &v0, A + id - 1, 1 * sizeof(double), hipMemcpyDeviceToHost));
       } else if(mp == 1) { // row vector
         int id;
+#ifdef PRPRA
+printf("Of %s, line: %d, calling  cublasIdamax(int n=%d, const double *x, int incx=%d, int *result)\n", __FILE__, __LINE__, nq, LDA);
+#endif
         CHECK_ROCBLAS_ERROR(rocblas_idamax(handle, nq, A, LDA, &id));
         CHECK_HIP_ERROR(hipMemcpy(&v0,
                                   A + ((size_t)id * LDA),
@@ -232,6 +238,9 @@ double HPL_pdlange(const HPL_T_grid* GRID,
       }
 
       if(nq == 1) { // column vector
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDasum(int n=%d, const double *x, int incx=%d, double *result)\n", __FILE__, __LINE__, mp, 1);
+#endif
         CHECK_ROCBLAS_ERROR(rocblas_dasum(handle, mp, A, 1, work));
       } else {
         CHECK_HIP_ERROR(hipMalloc(&dwork, nq * sizeof(double)));
@@ -270,6 +279,9 @@ double HPL_pdlange(const HPL_T_grid* GRID,
       }
 
       if(mp == 1) { // row vector
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDasum(int n=%d, const double *x, int incx=%d, double *result)\n", __FILE__, __LINE__, nq, LDA);
+#endif
         CHECK_ROCBLAS_ERROR(rocblas_dasum(handle, nq, A, LDA, work));
       } else {
         CHECK_HIP_ERROR(hipMalloc(&dwork, mp * sizeof(double)));

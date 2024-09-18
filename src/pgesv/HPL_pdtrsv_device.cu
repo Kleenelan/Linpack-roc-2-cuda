@@ -173,6 +173,9 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT) {
     Xdprev  = (Xd = XR + Anq);
     dXdprev = (dXd = dXR + Anq);
     if(myrow == Alrow) {
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDtrsv(cublasFillMode_t uplo=upper, cublasOperation_t trans=none, cublasDiagType_t diag=unit, int n=%d, const double *A, int lda=%d, double *x, int incx=%d)\n", __FILE__, __LINE__, kb, lda, 1);
+#endif
       CHECK_ROCBLAS_ERROR(rocblas_dtrsv(handle,
                                         rocblas_fill_upper,
                                         rocblas_operation_none,
@@ -182,6 +185,9 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT) {
                                         lda,
                                         dXC + Anp,
                                         1));
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDcopy(int n=%d, const double *x, int incx=%d, double *y, int incy=%d)\n", __FILE__, __LINE__, kb, 1, 1);
+#endif
       CHECK_ROCBLAS_ERROR(rocblas_dcopy(handle, kb, dXC + Anp, 1, dXd, 1));
     }
   }
@@ -237,6 +243,9 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT) {
         tmp1              = Anpprev - n1pprev;
         const double one  = 1.0;
         const double mone = -1.0;
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDgemv(cublasOperation_t trans=none, int m=%d, int n=%d, const double *alpha=%f, const double *A, int lda=%d, const double *x, int incx=%d, const double *beta=%f, double *y, int incy=%d)\n", __FILE__, __LINE__, n1pprev, kbprev, mone, lda, 1, one, 1);
+#endif
         CHECK_ROCBLAS_ERROR(rocblas_dgemv(handle,
                                           rocblas_operation_none,
                                           n1pprev,
@@ -285,6 +294,9 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT) {
      * Solve current diagonal block
      */
     if((mycol == Alcol) && (myrow == Alrow)) {
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDtrsv(cublasFillMode_t uplo=upper, cublasOperation_t trans=none, cublasDiagType_t diag=unit, int n=%d, const double *A, int lda=%d, double *x, int incx=%d)\n", __FILE__, __LINE__, kb, lda, 1);
+#endif
       CHECK_ROCBLAS_ERROR(rocblas_dtrsv(handle,
                                         rocblas_fill_upper,
                                         rocblas_operation_none,
@@ -294,6 +306,9 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT) {
                                         lda,
                                         dXC + Anp,
                                         1));
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDcopy(int n=%d, const double *x, int incx=%d, double *y, int incy=%d)\n", __FILE__, __LINE__, kb, 1, 1);
+#endif
       CHECK_ROCBLAS_ERROR(
           rocblas_dcopy(handle, kb, dXC + Anp, 1, dXR + Anq, 1));
     }
@@ -303,6 +318,9 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT) {
     if((mycol == colprev) && ((tmp1 = Anpprev - n1pprev) > 0)) {
       const double one  = 1.0;
       const double mone = -1.0;
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDgemv(cublasOperation_t trans=none, int m=%d, int n=%d, const double *alpha=%f, const double *A, int lda=%d, const double *x, int incx=%d, const double *beta=%f, double *y, int incy=%d)\n", __FILE__, __LINE__, tmp1, kbprev, mone, lda, 1, one, 1);
+#endif
       CHECK_ROCBLAS_ERROR(rocblas_dgemv(handle,
                                         rocblas_operation_none,
                                         tmp1,

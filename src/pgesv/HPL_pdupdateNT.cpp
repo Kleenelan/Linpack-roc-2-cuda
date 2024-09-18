@@ -128,6 +128,9 @@ void HPL_pdupdateNT(HPL_T_panel* PANEL, const HPL_T_UPD UPD) {
    * Queue finishing the update
    */
   if(curr != 0) {
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDgemm(cublasOperation_t transa=none, cublasOperation_t transb=transpose, int m=%d, int n=%d, int k=%d, const double *alpha=%f, const double *A, int lda=%d, const double *B, int ldb=%d, const double *beta=%f, double *C, int ldc=%d)\n", __FILE__, __LINE__, mp, n, jb, mone, ldl2, LDU, one, lda);
+#endif
     CHECK_HIP_ERROR(hipEventRecord(dgemmStart[UPD], stream));
     CHECK_ROCBLAS_ERROR(rocblas_dgemm(handle,
                                       rocblas_operation_none,
@@ -147,6 +150,9 @@ void HPL_pdupdateNT(HPL_T_panel* PANEL, const HPL_T_UPD UPD) {
 
     if(PANEL->grid->nprow > 1) HPL_dlatcpy_gpu(jb, n, Uptr, LDU, Aptr, lda);
   } else {
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDgemm(cublasOperation_t transa=none, cublasOperation_t transb=transpose, int m=%d, int n=%d, int k=%d, const double *alpha=%f, const double *A, int lda=%d, const double *B, int ldb=%d, const double *beta=%f, double *C, int ldc=%d)\n", __FILE__, __LINE__, mp, n, jb, mone, ldl2, LDU, one, lda);
+#endif
     CHECK_HIP_ERROR(hipEventRecord(dgemmStart[UPD], stream));
     CHECK_ROCBLAS_ERROR(rocblas_dgemm(handle,
                                       rocblas_operation_none,

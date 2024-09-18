@@ -339,6 +339,9 @@ void HPL_pdtest(HPL_T_test* TEST,
       // int id = HPL_idamax( mat.mp, Bptr, 1);
       // BnormI = Bptr[id];
       int id;
+#ifdef PRPRA
+printf("Of %s, line: %d, calling  cublasIdamax(int n=%d, const double *x, int incx=%d, int *result)\n", __FILE__, __LINE__, mat.mp, 1);
+#endif
       CHECK_ROCBLAS_ERROR(rocblas_idamax(handle, mat.mp, dBptr, 1, &id));
 
       // Note: id is in Fortran indexing
@@ -370,6 +373,9 @@ void HPL_pdtest(HPL_T_test* TEST,
 
     for(int nn = 0; nn < nq; nn += nq_chunk) {
       int nb = Mmin(nq - nn, nq_chunk);
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDgemv(cublasOperation_t trans=none, int m=%d, int n=%d, const double *alpha=%f, const double *A, int lda=%d, const double *x, int incx=%d, const double *beta=%f, double *y, int incy=%d)\n", __FILE__, __LINE__,mat.mp, nb, mone,mat.ld,1, one,1);
+#endif
       CHECK_ROCBLAS_ERROR(rocblas_dgemv(handle,
                                         rocblas_operation_none,
                                         mat.mp,
@@ -392,6 +398,9 @@ void HPL_pdtest(HPL_T_test* TEST,
     const double mone = -1.0;
 
     int nb = Mmin(nq, nq_chunk);
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDgemv(cublasOperation_t trans=none, int m=%d, int n=%d, const double *alpha=%f, const double *A, int lda=%d, const double *x, int incx=%d, const double *beta=%f, double *y, int incy=%d)\n", __FILE__, __LINE__, mat.mp, nb, mone, mat.ld, 1, zero, 1);
+#endif
     CHECK_ROCBLAS_ERROR(rocblas_dgemv(handle,
                                       rocblas_operation_none,
                                       mat.mp,
@@ -407,6 +416,9 @@ void HPL_pdtest(HPL_T_test* TEST,
 
     for(int nn = nb; nn < nq; nn += nq_chunk) {
       int nb = Mmin(nq - nn, nq_chunk);
+#ifdef PRPRA
+       printf("Of %s, line: %d, calling  cublasDgemv(cublasOperation_t trans=none, int m=%d, int n=%d, const double *alpha=%f, const double *A, int lda=%d, const double *x, int incx=%d, const double *beta=%f, double *y, int incy=%d)\n", __FILE__, __LINE__, mat.mp, nb, mone, mat.ld,1,one,1);
+#endif
       CHECK_ROCBLAS_ERROR(rocblas_dgemv(handle,
                                         rocblas_operation_none,
                                         mat.mp,

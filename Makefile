@@ -10,6 +10,8 @@ include make.cpp.src
 CPP_OBJ := $(CPP_SRC:.cpp=.cpp.o)
 CU_OBJ := $(CU_SRC:.cu=.cu.o)
 
+CUBLAS_INFO := -DPRPRA
+
 EXE := ixhpl
 
 all: $(EXE)-$(VERSION)
@@ -27,7 +29,7 @@ $(EXE)-$(VERSION) : $(CPP_OBJ) $(CU_OBJ)
 INC_CPP 	:= -I ./include/  -I/usr/local/cuda/include -I ./tpl/openmpi/include/
 #LD_FLAGS_CPP 	:= -L ../tpl/openmpi/lib/ -L ../tpl/blis/lib -L /usr/local/cuda/lib64 -lcudart -lcublas -lmpi -lblis
 CPP_CXX_FLAGS := -O3 -DNDEBUG -std=c++11 -march=native -fopenmp
-CPP_CXX_FLAGS += -DHPL_DETAILED_TIMING -DHPL_PROGRESS_REPORT -DHPL_VERBOSE_PRINT -DUSE_PROF_API=1
+CPP_CXX_FLAGS += -DHPL_DETAILED_TIMING -DHPL_PROGRESS_REPORT -DHPL_VERBOSE_PRINT -DUSE_PROF_API=1 $(CUBLAS_INFO)
 # -D__HIP_PLATFORM_AMD__=1
 
 %.cpp.o: %.cpp
@@ -41,7 +43,7 @@ CPP_CXX_FLAGS += -DHPL_DETAILED_TIMING -DHPL_PROGRESS_REPORT -DHPL_VERBOSE_PRINT
 
 INC_CU      := -I /usr/local/cuda/include -I tpl/openmpi/include/ -I ./include
 #LD_FLAGS_CU := -L /usr/local/cuda/lib64 -lcudart
-CU_CXX_FLAGS := -O3
+CU_CXX_FLAGS := -O3 $(CUBLAS_INFO)
 #CU_CXX_FLAGS +=  -DHPL_VERBOSE_PRINT -DHPL_DETAILED_TIMING -DHPL_PROGRESS_REPORT -DUSE_PROF_API=1
 #nvcc fatal   : Unknown option '-Wno-unused-command-line-argument'
 #-D__HIP_PLATFORM_AMD__=1
