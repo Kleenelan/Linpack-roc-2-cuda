@@ -10,7 +10,7 @@ include make.cpp.src
 CPP_OBJ := $(CPP_SRC:.cpp=.cpp.o)
 CU_OBJ := $(CU_SRC:.cu=.cu.o)
 
-CUBLAS_INFO := -DPRPRA
+#CUBLAS_INFO := -DPRPRA
 
 EXE := ixhpl
 
@@ -60,8 +60,8 @@ PREFIX ?= ../local
 install:
 	mkdir -p $(PREFIX)/bin
 	cp scripts/HPL.dat $(PREFIX)
-	mv ./build/run_rochpl $(PREFIX)
-	mv ./build/mpirun_rochpl $(PREFIX)
+	cp ./build/run_rochpl $(PREFIX)
+	cp ./build/mpirun_rochpl $(PREFIX)
 	cp $(EXE)-$(VERSION) $(PREFIX)/bin/
 	cd $(PREFIX)/bin && rm -rf $(EXE) && ln -s $(EXE)-$(VERSION) $(EXE)
 

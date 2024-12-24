@@ -349,7 +349,7 @@ pushd .
   # #################################################
   # configure & build
   # #################################################
-  cmake_common_options="-DCMAKE_INSTALL_PREFIX=${install_prefix} -DHPL_BLAS_DIR=${with_cpublas}
+  cmake_common_options="-DCMAKE_INSTALL_PREFIX=../${install_prefix} -DHPL_BLAS_DIR=${with_cpublas}
                         -DHPL_MPI_DIR=${with_mpi} -DCUDA_PATH=${with_cuda} -DCUBLAS_PATH=${with_cublas} -DMPIEXEC_EXECUTABLE=${with_mpi}/bin/mpiexec"
 
   # build type
@@ -381,5 +381,6 @@ pushd .
   make -j$(nproc)
   make install PREFIX=${install_prefix}
   check_exit_code 2
+#  echo "install_prefix= ${install_prefix}"
 
 popd
